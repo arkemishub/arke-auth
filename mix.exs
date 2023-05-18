@@ -84,7 +84,7 @@ defmodule ArkeAuth.MixProject do
       licenses: ["Apache-2.0"],
       links: %{
         "Website" => "https://arkehub.com",
-        "Github" => "https://github.com/arkemishub/arke"
+        "Github" => "https://github.com/arkemishub/arke-auth"
       }
     ]
   end
