@@ -4,7 +4,7 @@ defmodule ArkeAuth.MixProject do
   def project do
     [
       app: :arke_auth,
-      version: "0.1.1",
+      version: "0.1.2",
       build_path: "./_build",
       config_path: "./config/config.exs",
       deps_path: "./deps",
@@ -40,22 +40,8 @@ defmodule ArkeAuth.MixProject do
       {:ex_doc, "~> 0.28", only: :dev, runtime: false},
       {:excoveralls, "~> 0.10", only: :test},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
-      get_arke(Mix.env())
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
+      {:arke, "~> 0.1.3"}
     ])
-  end
-
-  defp get_arke(:dev) do
-    [
-      {:arke, in_umbrella: true, override: true}
-    ]
-  end
-
-  defp get_arke(_env) do
-    [
-      {:arke, "~> 0.1.2"}
-    ]
   end
 
   defp aliases do
