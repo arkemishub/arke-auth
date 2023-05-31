@@ -63,6 +63,10 @@ defmodule ArkeAuth.Core.User do
 
   def before_load(data, _persistence_fn), do: {:ok, data}
 
+  def on_struct_encode(unit, _) do
+    {:ok, Map.replace(unit, :data, Map.delete(unit.data, :password_hash))}
+  end
+
   ########
   # FUNCTIONS
   #######
