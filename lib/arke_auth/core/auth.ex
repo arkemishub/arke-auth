@@ -37,7 +37,7 @@ defmodule ArkeAuth.Core.Auth do
       persistence: "table_column"
     )
 
-    parameter(:configuration, :dict, default_dict: %{}, persistence: "table_column")
+    parameter(:metadata, :dict, default_dict: %{}, persistence: "table_column")
   end
 
   defp on_unit_create(
@@ -46,11 +46,11 @@ defmodule ArkeAuth.Core.Auth do
              type: :parameter,
              parent_id: parent_id,
              child_id: child_id,
-             configuration: configuration
+             metadata: metadata
            }
          } = unit
        ) do
-    ArkeManager.add_parameter(parent_id, :arke_system, child_id, configuration)
+    ArkeManager.add_parameter(parent_id, :arke_system, child_id, metadata)
     {:ok, unit}
   end
 
