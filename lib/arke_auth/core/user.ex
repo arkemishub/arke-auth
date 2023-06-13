@@ -25,7 +25,7 @@ defmodule ArkeAuth.Core.User do
   use Arke.System
 
   arke do
-    parameter(:username, :string, required: true, unique: true)
+    parameter(:username, :string, required: true, unique: true, no_whitespace: true)
     parameter(:password_hash, :string, required: true)
 
     parameter(:type, :string,
