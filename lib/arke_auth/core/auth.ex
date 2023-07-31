@@ -142,7 +142,7 @@ defmodule ArkeAuth.Core.Auth do
   ######## END CHECK PW ##########
 
   #### JWT MANAGEMENT START #####
-  defp create_tokens(resource) do
+  def create_tokens(resource) do
     with {:ok, access_token} <- create_access_token(resource),
          {:ok, refresh_token} <- create_refresh_token(resource) do
       {:ok, resource, access_token, refresh_token}
