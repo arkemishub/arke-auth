@@ -43,6 +43,7 @@ defmodule ArkeAuth.Core.User do
     parameter(:first_access, :boolean, required: false, default_boolean: false)
     parameter(:last_login, :string, required: false)
     parameter(:environment, :string, required: false)
+    parameter(:oauth_id, :string, required: false)
   end
 
   def before_load(data, :create) do
