@@ -27,13 +27,11 @@ defmodule ArkeAuth.Core.User do
   arke do
     parameter(:username, :string, required: true, unique: true)
     parameter(:password_hash, :string, required: true)
-
     parameter(:type, :string,
       required: true,
       values: ["customer", "admin", "super_admin"],
       multiple: false
     )
-
     parameter(:first_name, :string, required: false)
     parameter(:last_name, :string, required: false)
     parameter(:fiscal_code, :string, required: false)
@@ -43,7 +41,7 @@ defmodule ArkeAuth.Core.User do
     parameter(:first_access, :boolean, required: false, default_boolean: false)
     parameter(:last_login, :string, required: false)
     parameter(:environment, :string, required: false)
-    parameter(:oauth_id, :string, required: false)
+
   end
 
   def before_load(data, :create) do
