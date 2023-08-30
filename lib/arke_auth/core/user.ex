@@ -29,21 +29,9 @@ defmodule ArkeAuth.Core.User do
     parameter(:email, :string, required: true, unique: true)
     parameter(:password_hash, :string, required: true)
 
-    parameter(:type, :string,
-      required: true,
-      values: ["customer", "admin", "super_admin"],
-      multiple: false
-    )
-
-    parameter(:first_name, :string, required: false)
-    parameter(:last_name, :string, required: false)
-    parameter(:fiscal_code, :string, required: false)
-    parameter(:birth_date, :string, required: false)
-    parameter(:address, :dict, required: false)
     parameter(:phone_number, :string, required: false)
     parameter(:first_access, :boolean, required: false, default_boolean: false)
     parameter(:last_login, :string, required: false)
-    parameter(:environment, :string, required: false)
   end
 
   def before_load(data, :create) do
