@@ -105,15 +105,30 @@ defmodule ArkeAuth.Core.Auth do
   @spec validate_credentials(username :: String.t(), password :: String.t(), project :: atom()) ::
           {:ok, Arke.Core.Unit.t()} | Arke.Utils.ErrorGenerator.t()
   def validate_credentials(username, password, project \\ :arke_system) do
-    case email_password_auth(username, password, project) do
-      {:ok, user} -> create_tokens(user)
-      _ -> Error.create(:auth, "unauthorized")
+    case email_password_auth(username, password, :arke_system) do
+      {:ok, user} ->
+        case get_project_member(project, user) do
+          {:ok, member} ->
+            create_tokens(member)
+          _ ->
+            Error.create(:auth, "unauthorized")
+        end
+
+      _ ->
+        Error.create(:auth, "unauthorized")
     end
   end
 
   defp email_password_auth(username, password, project)
        when is_binary(username) and is_binary(password) do
     with {:ok, user} <- get_by_username(username, project), do: verify_password(password, user)
+  end
+
+  defp get_project_member(project, user) do
+    case QueryManager.get_by(project: project, group_id: "arke_auth_member", arke_system_user: user.id ) do
+      nil -> Error.create(:auth, "member not exists")
+      member -> {:ok , member}
+    end
   end
 
   defp get_by_username(username, project) when is_binary(username) do
