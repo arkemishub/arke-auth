@@ -1,15 +1,20 @@
 defmodule ArkeAuth.MixProject do
   use Mix.Project
+  @version "0.1.5"
+  @scm_url "https://github.com/arkemishub/arke-auth"
+  @site_url "https://arkehub.com"
 
   def project do
     [
       app: :arke_auth,
-      version: "0.1.4",
+      version: @version,
       build_path: "./_build",
       config_path: "./config/config.exs",
       deps_path: "./deps",
       lockfile: "./mix.lock",
       elixir: "~> 1.13",
+      source_url: @scm_url,
+      homepage_url: @site_url,
       dialyzer: [plt_add_apps: ~w[eex]a],
       description: description(),
       package: package(),
@@ -40,7 +45,7 @@ defmodule ArkeAuth.MixProject do
       {:ex_doc, "~> 0.28", only: :dev, runtime: false},
       {:excoveralls, "~> 0.10", only: :test},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
-      {:arke, "~> 0.1.10"},
+      {:arke, "~> 0.1.12"}
     ])
   end
 
@@ -69,8 +74,8 @@ defmodule ArkeAuth.MixProject do
       # These are the default files included in the package
       licenses: ["Apache-2.0"],
       links: %{
-        "Website" => "https://arkehub.com",
-        "Github" => "https://github.com/arkemishub/arke-auth"
+        "Website" => @site_url,
+        "Github" => @scm_url
       }
     ]
   end
