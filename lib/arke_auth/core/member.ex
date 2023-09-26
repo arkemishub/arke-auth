@@ -81,7 +81,22 @@ defmodule ArkeAuth.Core.Member do
   def on_unit_delete(_arke, unit), do: {:ok, unit}
   def before_unit_delete(_arke, unit), do: {:ok, unit}
 
-  def get_permission(%{metadata: %{project: project}}=member, arke) do
+  # Temporary code until all arke are managed on database
+  def get_permission(member, arke) do
+    list_sytem_arke = Enum.map(ArkeManager.get_all(:arke_system), fn {k, v} -> k  end)
+    IO.inspect({arke.id, list_sytem_arke, member.arke_id})
+    if arke.id in list_sytem_arke do
+      if member.arke_id == :super_admin do
+        {:ok, permission_dict(nil, true, true, true, true)}
+      else
+        {:error, nil}
+      end
+    else
+      handle_get_permission(member, arke)
+    end
+  end
+
+  defp handle_get_permission(%{metadata: %{project: project}}=member, arke) do
     arke_link = ArkeManager.get(:arke_link, :arke_system)
     with %Arke.Core.Unit{} = link <-
       Arke.QueryManager.query(project: project, arke: arke_link)
@@ -89,15 +104,17 @@ defmodule ArkeAuth.Core.Member do
       |> Arke.QueryManager.filter(:child_id, :eq, Atom.to_string(arke.id), false)
       |> Arke.QueryManager.filter(:type, :eq, "permission", false)
       |> Arke.QueryManager.one(),
-    do: {:ok, %{
-      filter: Map.get(link.metadata, "filter", nil),
-      get: Map.get(link.metadata, "get", nil),
-      put: Map.get(link.metadata, "put", nil),
-      delete: Map.get(link.metadata, "delete", nil),
-      post: Map.get(link.metadata, "post", nil)
-      }},
+    do: {:ok, permission_dict(
+      Map.get(link.metadata, "filter", nil),
+      Map.get(link.metadata, "get", nil),
+      Map.get(link.metadata, "put", nil),
+      Map.get(link.metadata, "delete", nil),
+      Map.get(link.metadata, "post", nil)
+      )},
     else: (_ -> {:error, nil})
   end
+
+  defp permission_dict(filter, get, put, delete, post), do: %{filter: filter, get: get, put: put, delete: delete, post: post}
 end
 
 
