@@ -84,7 +84,6 @@ defmodule ArkeAuth.Core.Member do
   # Temporary code until all arke are managed on database
   def get_permission(member, arke) do
     list_sytem_arke = Enum.map(ArkeManager.get_all(:arke_system), fn {k, v} -> k  end)
-    IO.inspect({arke.id, list_sytem_arke, member.arke_id})
     if arke.id in list_sytem_arke do
       if member.arke_id == :super_admin do
         {:ok, permission_dict(nil, true, true, true, true)}
