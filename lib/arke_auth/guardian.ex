@@ -21,9 +21,12 @@ defmodule ArkeAuth.Guardian do
   @doc """
   The resource used to generate the tokens
   """
-  def subject_for_token(user, _claims) do
-    jwt_data = %{id: to_string(user.id)}
-    sub = Map.merge(jwt_data, Map.drop(user.data, [:password_hash]))
+  def subject_for_token(member, _claims) do
+    jwt_data = %{
+      id: to_string(member.id),
+      project: member.metadata.project
+    }
+    sub = Map.merge(jwt_data, member.data)
     {:ok, sub}
   end
 
@@ -36,8 +39,11 @@ defmodule ArkeAuth.Guardian do
   """
   def resource_from_claims(claims) do
     id = claims["sub"]["id"]
-    resource = Arke.QueryManager.get_by(project: :arke_system, arke: :user, id: id)
-    {:ok, resource}
+    project = String.to_existing_atom(claims["sub"]["project"])
+    case Arke.QueryManager.get_by(project: project, group_id: "arke_auth_member", id: id) do
+      nil -> {:error, :unauthorized}
+      member -> {:ok, member}
+    end
   end
 
   def resource_from_claims(_claims) do
