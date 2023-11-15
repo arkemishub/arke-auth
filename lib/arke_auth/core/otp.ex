@@ -12,23 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule ArkeAuth.Application do
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
-  @moduledoc false
+defmodule ArkeAuth.Core.Otp do
+  alias ArkeAuth.Core.Otp
 
-  use Application
+  @moduledoc """
+             Documentation for `Otp`.
+             """ && false
 
-  @impl true
-  def start(_type, _args) do
-    children = [
-      # Starts a worker by calling: ArkeAuth.Worker.start_link(arg)
-      {ArkeAuth.Boundary.OtpManager, [name: Arke.Boundary.OtpManager]}
-    ]
+  use Arke.System
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: ArkeAuth.Supervisor]
-    Supervisor.start_link(children, opts)
+  arke do
+    parameter(:member_id, :string, label: "Member id", required: true)
+    parameter(:code, :string, required: true)
+    parameter(:action, :string, required: true)
+    parameter(:expiry_datetime, :datetime, required: true)
   end
 end

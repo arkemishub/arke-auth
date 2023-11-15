@@ -12,20 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule ArkeAuth.Core.Company do
-  alias ArkeAuth.Core.Company
+defmodule ArkeAuth.Boundary.OtpManager do
+  @moduledoc false
+  use Arke.Boundary.UnitManager
 
-  @moduledoc """
-             Documentation for `Company`.
-             """ && false
-
-  use Arke.System
-
-  arke do
-    parameter(:name, :string, label: "Business Name", required: true)
-    parameter(:public_key, :string, required: false)
-    parameter(:email, :string, required: false)
-    parameter(:vat, :string, required: false)
-    parameter(:environment, :string, required: false)
-  end
+  manager_id(:otp)
+  # set_registry_name(:parameter_registry)
+  # set_supervisor_name(:parameter_supervisor)
 end
