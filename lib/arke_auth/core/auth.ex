@@ -109,7 +109,18 @@ defmodule ArkeAuth.Core.Auth do
       {:ok, user} ->
         case get_project_member(project, user) do
           {:ok, member} ->
-            create_tokens(member)
+            create_tokens(%{id: member.id,
+              arke_id: member.arke_id,
+              arke_system_user: member.data.arke_system_user,
+              data: %{
+                email: Map.get(member.data, :email),
+                first_name: Map.get(member.data, :first_name),
+                last_name: Map.get(member.data, :last_name),
+              },
+              metadata: member.metadata,
+              inserted_at: member.inserted_at,
+              updated_at: member.inserted_at
+            })
           _ ->
             Error.create(:auth, "unauthorized")
         end
