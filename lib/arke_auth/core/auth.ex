@@ -139,7 +139,12 @@ defmodule ArkeAuth.Core.Auth do
   defp get_project_member(project, user) do
     case QueryManager.get_by(project: project, group_id: "arke_auth_member", arke_system_user: user.id ) do
       nil -> Error.create(:auth, "member not exists")
-      member -> {:ok , member}
+      member ->
+        case Map.get(member.data, :inactive, false) do
+          false -> {:ok , member}
+          nil -> {:ok , member}
+          true -> Error.create(:auth, "member_not_active")
+        end
     end
   end
 
