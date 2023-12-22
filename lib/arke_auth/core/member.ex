@@ -58,9 +58,6 @@ defmodule ArkeAuth.Core.Member do
   end
   def before_unit_create(_arke, unit), do: {:ok, unit}
 
-  def on_unit_struct_encode(unit, _), do: {:ok, unit}
-  def on_unit_update(_arke, unit), do: {:ok, unit}
-
   def before_unit_update(_arke, %{data: %{arke_system_user: arke_system_user}}=unit) when is_map(arke_system_user) do
 
     arke_user = ArkeManager.get(:user, :arke_system)
@@ -78,7 +75,12 @@ defmodule ArkeAuth.Core.Member do
   end
   def before_unit_update(_arke, unit), do: {:ok, unit}
 
-  def on_unit_delete(_arke, unit), do: {:ok, unit}
+  def on_unit_delete(_arke, unit) do
+    IO.inspect({"ok", unit.data.arke_system_user})
+    user = QueryManager.get_by(project: :arke_system, arke_id: :user, id: unit.data.arke_system_user)
+    QueryManager.delete(:arke_system, user)
+    {:ok, unit}
+  end
   def before_unit_delete(_arke, unit), do: {:ok, unit}
 
   # Temporary code until all arke are managed on database
