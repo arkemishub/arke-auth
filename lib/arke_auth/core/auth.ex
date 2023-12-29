@@ -27,7 +27,7 @@ defmodule ArkeAuth.Core.Auth do
 
   use Arke.System
 
-  arke id: :arke_auth, label: "Arke Auth", type: "table" do
+  arke id: :arke_auth, label: "Arke Auth", type: "table", remote: true do
     parameter(:parent_id, :string, required: true, persistence: "table_column")
     parameter(:child_id, :string, required: true, persistence: "table_column")
 

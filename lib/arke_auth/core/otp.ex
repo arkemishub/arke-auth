@@ -21,7 +21,7 @@ defmodule ArkeAuth.Core.Otp do
 
   use Arke.System
 
-  arke do
+  arke remote: true do
     parameter(:member_id, :string, label: "Member id", required: true)
     parameter(:code, :string, required: true)
     parameter(:action, :string, required: true)

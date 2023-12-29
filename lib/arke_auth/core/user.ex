@@ -24,7 +24,7 @@ defmodule ArkeAuth.Core.User do
   """
   use Arke.System
 
-  arke do
+  arke remote: true do
     parameter(:username, :string, required: true, unique: true)
     parameter(:email, :string, required: true, unique: true)
     parameter(:password_hash, :string, required: true)

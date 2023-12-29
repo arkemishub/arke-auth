@@ -1,0 +1,105 @@
+{
+  "arke": [
+    {
+      "id": "reset_password_token",
+      "label": "Reset password token",
+      "parameters": [
+        {
+          "id": "expiration",
+          "metadata": {
+            "required": true
+          }
+        },
+        {
+          "id": "user_id",
+          "metadata": {
+            "required": true
+          }
+        },
+        {
+          "id": "token",
+          "metadata": {
+            "required": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "user",
+      "label": "User",
+      "parameters": [
+        {
+          "id": "first_name",
+          "metadata": {
+            "required": false
+          }
+        },
+        {
+          "id": "last_name",
+          "metadata": {
+            "required": false
+          }
+        },
+        {
+          "id": "username",
+          "metadata": {
+            "required": true
+          }
+        },
+        {
+          "id": "last_login",
+          "metadata": {
+            "required": false
+          }
+        },
+        {
+          "id": "phone_number",
+          "metadata": {}
+        },
+        {
+          "id": "password_hash",
+          "metadata": {
+            "required": true
+          }
+        },
+        {
+          "id": "email",
+          "metadata": {
+            "required": true,
+            "unique": true
+          }
+        },
+        {
+          "id": "first_access",
+          "metadata": {
+            "default_boolean": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "super_admin",
+      "label": "Super admin",
+      "parameters": [
+        {
+          "id": "first_name",
+          "metadata": {
+            "required": false
+          }
+        },
+        {
+          "id": "last_name",
+          "metadata": {
+            "required": false
+          }
+        },
+        {
+          "id": "arke_system_user",
+          "metadata": {
+            "required": false
+          }
+        }
+      ]
+    }
+  ]
+}

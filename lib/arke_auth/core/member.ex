@@ -117,7 +117,7 @@ defmodule ArkeAuth.Core.Member do
 end
 
 
-# arke do
+# arke remote: true do
 #   parameter(:nickname, :string, required: false)
 #   parameter(:first_name, :string, required: false)
 #   parameter(:last_name, :string, required: false)
