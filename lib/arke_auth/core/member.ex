@@ -76,7 +76,6 @@ defmodule ArkeAuth.Core.Member do
   def before_unit_update(_arke, unit), do: {:ok, unit}
 
   def on_unit_delete(_arke, unit) do
-    IO.inspect({"ok", unit.data.arke_system_user})
     user = QueryManager.get_by(project: :arke_system, arke_id: :user, id: unit.data.arke_system_user)
     QueryManager.delete(:arke_system, user)
     {:ok, unit}

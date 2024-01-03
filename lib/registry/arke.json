@@ -25,6 +25,36 @@
       ]
     },
     {
+      "id": "otp",
+      "label": "Otp",
+      "parameters": [
+        {
+          "id": "member_id",
+          "metadata": {
+            "required": true
+          }
+        },
+        {
+          "id": "code",
+          "metadata": {
+            "required": true
+          }
+        },
+        {
+          "id": "action",
+          "metadata": {
+            "required": true
+          }
+        },
+        {
+          "id": "expiry_datetime",
+          "metadata": {
+            "required": true
+          }
+        }
+      ]
+    },
+    {
       "id": "user",
       "label": "User",
       "parameters": [
