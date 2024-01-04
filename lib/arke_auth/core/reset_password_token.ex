@@ -8,7 +8,7 @@ defmodule ArkeAuth.ResetPasswordToken do
 
   use Arke.System
 
-  arke remote: true do
+  arke do
     parameter(:token, :string, label: "Token", required: true, unique: true)
     parameter(:user_id, :string, label: "User Id", required: true)
     parameter(:expiration, :datetime, required: true)

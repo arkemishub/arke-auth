@@ -24,7 +24,7 @@ defmodule ArkeAuth.Core.Otp do
 
   use Arke.System
 
-  arke id: :otp, remote: true do
+  arke id: :otp do
   end
 
   def generate(project, id, action, expiry_datetime \\ nil) do
