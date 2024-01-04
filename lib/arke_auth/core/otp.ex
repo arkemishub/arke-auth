@@ -13,7 +13,6 @@
 # limitations under the License.
 
 defmodule ArkeAuth.Core.Otp do
-  alias ArkeAuth.Core.Otp
 
   alias Arke.QueryManager
   alias Arke.Boundary.ArkeManager

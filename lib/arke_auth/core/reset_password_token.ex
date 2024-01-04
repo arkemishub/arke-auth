@@ -1,6 +1,5 @@
 defmodule ArkeAuth.ResetPasswordToken do
-  alias ArkeAuth.ResetPasswordToken
-  import Comeonin.Bcrypt, only: [hashpwsalt: 1, checkpw: 2]
+
 
   @moduledoc """
              Documentation for `ResetPasswordToken`.
@@ -9,9 +8,6 @@ defmodule ArkeAuth.ResetPasswordToken do
   use Arke.System
 
   arke do
-    parameter(:token, :string, label: "Token", required: true, unique: true)
-    parameter(:user_id, :string, label: "User Id", required: true)
-    parameter(:expiration, :datetime, required: true)
   end
 
   def before_load(data, :create) do

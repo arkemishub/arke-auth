@@ -25,35 +25,6 @@ defmodule ArkeAuth.Core.Auth do
   alias ArkeAuth.Guardian
   alias Arke.Utils.ErrorGenerator, as: Error
 
-  use Arke.System
-
-  arke id: :arke_auth, label: "Arke Auth", type: "table" do
-    parameter(:parent_id, :string, required: true, persistence: "table_column")
-    parameter(:child_id, :string, required: true, persistence: "table_column")
-
-    parameter(:type, :dict,
-      default_dict: %{read: true, write: true, delete: true, shared_by: nil},
-      required: true,
-      persistence: "table_column"
-    )
-
-    parameter(:metadata, :dict, default_dict: %{}, persistence: "table_column")
-  end
-
-  defp on_unit_create(
-         %{
-           data: %{
-             type: :parameter,
-             parent_id: parent_id,
-             child_id: child_id,
-             metadata: metadata
-           }
-         } = unit
-       ) do
-    ArkeManager.add_parameter(parent_id, :arke_system, child_id, metadata)
-    {:ok, unit}
-  end
-
   ######### UPDATE USER #############
   @doc """
   Update the user data
