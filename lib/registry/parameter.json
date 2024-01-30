@@ -234,6 +234,24 @@
     "values": null
   },
   {
+    "default_string": null,
+    "type": "string",
+    "format": "attribute",
+    "helper_text": "OAuth ID",
+    "id": "oauth_id",
+    "is_primary": false,
+    "label": "OAuth Id",
+    "max_length": null,
+    "min_length": null,
+    "multiple": false,
+    "nullable": true,
+    "persistence": "arke_parameter",
+    "required": false,
+    "strip": true,
+    "unique": false,
+    "values": null
+  },
+  {
     "default_boolean": true,
     "type": "boolean",
     "format": "attribute",

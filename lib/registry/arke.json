@@ -130,6 +130,60 @@
           }
         }
       ]
-    }
+    },
+    {
+      "id": "oauth_apple",
+      "label": "Apple OAuth",
+      "parameters": [
+        {
+          "id": "email",
+          "metadata": {
+            "required": true
+          }
+        },
+        {
+          "id": "oauth_id",
+          "metadata": {
+            "required": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "oauth_google",
+      "label": "Google OAuth",
+      "parameters": [
+        {
+          "id": "email",
+          "metadata": {
+            "required": true
+          }
+        },
+        {
+          "id": "oauth_id",
+          "metadata": {
+            "required": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "oauth_facebook",
+      "label": "Facebook OAuth",
+      "parameters": [
+        {
+          "id": "email",
+          "metadata": {
+            "required": true
+          }
+        },
+        {
+          "id": "oauth_id",
+          "metadata": {
+            "required": true
+          }
+        }
+      ]
+    },
   ]
 }

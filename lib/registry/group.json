@@ -4,5 +4,11 @@
     "label": "Arke Auth Member",
     "description": "Arke Auth Member",
     "arke_list": ["super_admin"]
+  },
+  {
+    "id": "oauth_provider",
+    "label": "OAuth Provider",
+    "description": "Oauth Provider",
+    "arke_list": ["oauth_apple","oauth_google","oauth_facebook"]
   }
 ]}
