@@ -29,7 +29,7 @@ defmodule ArkeAuth.ResetPasswordToken do
     {:ok,
      %{
        token: token,
-       expiration: Arke.DatetimeHandler.shift_datetime(weeks: 2),
+       expiration: Arke.Utils.DatetimeHandler.shift_datetime(weeks: 2),
        user_id: user_id
      }}
   end
