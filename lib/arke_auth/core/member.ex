@@ -87,7 +87,7 @@ defmodule ArkeAuth.Core.Member do
     list_sytem_arke = Enum.map(ArkeManager.get_all(:arke_system), fn {k, v} -> k  end)
     if arke.id in list_sytem_arke do
       if member.arke_id == :super_admin do
-        {:ok, permission_dict(nil, true, true, true, true)}
+        {:ok, permission_dict(nil, true, true, true, true, false)}
       else
         {:error, nil}
       end
@@ -109,12 +109,13 @@ defmodule ArkeAuth.Core.Member do
       Map.get(link.metadata, "get", nil),
       Map.get(link.metadata, "put", nil),
       Map.get(link.metadata, "delete", nil),
-      Map.get(link.metadata, "post", nil)
+      Map.get(link.metadata, "post", nil),
+      Map.get(link.metadata, "child_only", false)
       )},
     else: (_ -> {:error, nil})
   end
 
-  defp permission_dict(filter, get, put, delete, post), do: %{filter: filter, get: get, put: put, delete: delete, post: post}
+  defp permission_dict(filter, get, put, delete, post, child_only), do: %{filter: filter, get: get, put: put, delete: delete, post: post, child_only: child_only}
 end
 
 
