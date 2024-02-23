@@ -14,7 +14,6 @@
 
 defmodule ArkeAuth.Core.User do
   import Comeonin.Bcrypt, only: [hashpwsalt: 1, checkpw: 2]
-  alias ArkeAuth.Core.User
   alias ArkeAuth.Boundary.Validators
 
   alias Arke.Utils.ErrorGenerator, as: Error
@@ -25,13 +24,6 @@ defmodule ArkeAuth.Core.User do
   use Arke.System
 
   arke do
-    parameter(:username, :string, required: true, unique: true)
-    parameter(:email, :string, required: true, unique: true)
-    parameter(:password_hash, :string, required: true)
-
-    parameter(:phone_number, :string, required: false)
-    parameter(:first_access, :boolean, required: false, default_boolean: false)
-    parameter(:last_login, :string, required: false)
   end
 
   def before_load(data, :create) do
