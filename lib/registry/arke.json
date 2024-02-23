@@ -29,12 +29,6 @@
       "label": "Otp",
       "parameters": [
         {
-          "id": "member_id",
-          "metadata": {
-            "required": true
-          }
-        },
-        {
           "id": "code",
           "metadata": {
             "required": true
@@ -103,30 +97,6 @@
           "id": "first_access",
           "metadata": {
             "default_boolean": true
-          }
-        }
-      ]
-    },
-    {
-      "id": "super_admin",
-      "label": "Super admin",
-      "parameters": [
-        {
-          "id": "first_name",
-          "metadata": {
-            "required": false
-          }
-        },
-        {
-          "id": "last_name",
-          "metadata": {
-            "required": false
-          }
-        },
-        {
-          "id": "arke_system_user",
-          "metadata": {
-            "required": false
           }
         }
       ]

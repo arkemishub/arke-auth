@@ -1,11 +1,5 @@
 {"group":[
   {
-    "id": "arke_auth_member",
-    "label": "Arke Auth Member",
-    "description": "Arke Auth Member",
-    "arke_list": ["super_admin"]
-  },
-  {
     "id": "oauth_provider",
     "label": "OAuth Provider",
     "description": "Oauth Provider",
