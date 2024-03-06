@@ -42,7 +42,15 @@ defmodule ArkeAuth.Guardian do
     project = String.to_existing_atom(claims["sub"]["project"])
     case Arke.QueryManager.get_by(project: project, group_id: "arke_auth_member", id: id) do
       nil -> {:error, :unauthorized}
-      member -> {:ok, member}
+      member ->
+      data = Map.get(member,:data,%{})
+      inactive = Map.get(data,:inactive,false)
+      if inactive do
+        {:error, :unauthorized}
+        else
+        {:ok, member}
+      end
+
     end
   end
 
