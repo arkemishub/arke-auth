@@ -16,7 +16,7 @@ defmodule ArkeAuth.SSOGuardian do
   @moduledoc """
              Guardian callbacks valid in a SSO process
              """ && false
-  use Guardian, otp_app: :arke_auth_sso
+  use Guardian, otp_app: :arke_auth
 
   @doc """
   The resource used to generate the tokens
@@ -25,7 +25,7 @@ defmodule ArkeAuth.SSOGuardian do
     jwt_data = %{
       id: to_string(user.id),
     }
-    sub = Map.merge(jwt_data, user.data)
+    sub = Map.merge(jwt_data, Map.drop(user.data, [:password_hash]))
     {:ok, sub}
   end
 
