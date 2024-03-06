@@ -40,8 +40,10 @@ defmodule ArkeAuth.Guardian do
   def resource_from_claims(claims) do
     id = claims["sub"]["id"]
     project = String.to_existing_atom(claims["sub"]["project"])
+
     case Arke.QueryManager.get_by(project: project, group_id: "arke_auth_member", id: id) do
-      nil -> {:error, :unauthorized}
+#      nil -> {:ok, Arke.Core.Unit.new("member_public_unit", %{}, :member_public, nil, %{}, nil, nil)}
+      nil -> {:error, nil}
       member -> {:ok, member}
     end
   end
