@@ -25,6 +25,8 @@ defmodule ArkeAuth.Core.Auth do
   alias ArkeAuth.Guardian
   alias Arke.Utils.ErrorGenerator, as: Error
 
+  #todo: add method to validate sso
+
   ######### UPDATE USER #############
   @doc """
   Update the user data
