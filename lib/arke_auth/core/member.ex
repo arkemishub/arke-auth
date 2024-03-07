@@ -85,11 +85,11 @@ defmodule ArkeAuth.Core.Member do
   # Temporary code until all arke are managed on database
   def get_permission(member, arke) do
     list_sytem_arke = Enum.map(ArkeManager.get_all(:arke_system), fn {k, v} -> k  end)
-    if arke.id in list_sytem_arke do
+    if member != nil and arke.id in list_sytem_arke do
       if member.arke_id == :super_admin do
         {:ok, permission_dict(%{filer: nil, get: true, put: true, post: true, delete: true})}
       else
-        {:error, nil}
+        handle_get_permission(member, arke)
       end
     else
       handle_get_permission(member, arke)
