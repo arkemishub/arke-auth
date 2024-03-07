@@ -12,21 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule ArkeAuth.Guardian do
+defmodule ArkeAuth.SSOGuardian do
   @moduledoc """
-             Guardian callbacks
+             Guardian callbacks valid in a SSO process
              """ && false
   use Guardian, otp_app: :arke_auth
 
   @doc """
   The resource used to generate the tokens
   """
-  def subject_for_token(member, _claims) do
+  def subject_for_token(user, _claims) do
     jwt_data = %{
-      id: to_string(member.id),
-      project: member.metadata.project
+      id: to_string(user.id),
     }
-    sub = Map.merge(jwt_data, member.data)
+    sub = Map.merge(jwt_data, Map.drop(user.data, [:password_hash]))
     {:ok, sub}
   end
 
@@ -39,18 +38,11 @@ defmodule ArkeAuth.Guardian do
   """
   def resource_from_claims(claims) do
     id = claims["sub"]["id"]
-    project = String.to_existing_atom(claims["sub"]["project"])
-    case Arke.QueryManager.get_by(project: project, group_id: "arke_auth_member", id: id) do
+    case Arke.QueryManager.get_by(project: :arke_system, arke_id: :user, id: id) do
       nil -> {:error, :unauthorized}
-      member ->
-      data = Map.get(member,:data,%{})
-      inactive = Map.get(data,:inactive,false)
-      if inactive do
-        {:error, :unauthorized}
-        else
-        {:ok, member}
-      end
-
+      user ->
+        data = Map.get(user,:data,%{})
+        {:ok, user}
     end
   end
 

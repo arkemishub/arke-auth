@@ -22,8 +22,10 @@ defmodule ArkeAuth.Core.Auth do
   alias Arke.Boundary.ArkeManager
   alias Arke.QueryManager
   alias ArkeAuth.Core.User
-  alias ArkeAuth.Guardian
+  alias ArkeAuth.{Guardian,SSOGuardian}
   alias Arke.Utils.ErrorGenerator, as: Error
+
+  #todo: add method to validate sso
 
   ######### UPDATE USER #############
   @doc """
@@ -80,18 +82,7 @@ defmodule ArkeAuth.Core.Auth do
       {:ok, user} ->
         case get_project_member(project, user) do
           {:ok, member} ->
-          {:ok, resource, access_token, refresh_token} = create_tokens(%{id: member.id,
-              arke_id: member.arke_id,
-              arke_system_user: member.data.arke_system_user,
-              data: %{
-                email: Map.get(member.data, :email),
-                first_name: Map.get(member.data, :first_name),
-                last_name: Map.get(member.data, :last_name),
-              },
-              metadata: member.metadata,
-              inserted_at: member.inserted_at,
-              updated_at: member.inserted_at
-            })
+          {:ok, resource, access_token, refresh_token} = create_tokens(format_member(member))
           {:ok, member, access_token, refresh_token}
           _ ->
             Error.create(:auth, "unauthorized")
@@ -145,28 +136,33 @@ defmodule ArkeAuth.Core.Auth do
   ######## END CHECK PW ##########
 
   #### JWT MANAGEMENT START #####
-  def create_tokens(resource) do
-    with {:ok, access_token} <- create_access_token(resource),
-         {:ok, refresh_token} <- create_refresh_token(resource) do
+  def create_tokens(resource,sso \\ false) do
+    with {:ok, access_token} <- create_access_token(resource,sso),
+         {:ok, refresh_token} <- create_refresh_token(resource,sso) do
       {:ok, resource, access_token, refresh_token}
     end
   end
 
   # default ttl of the acess token is 1 week
-  defp create_access_token(resource) do
-    case Guardian.encode_and_sign(resource, %{}) do
+  defp create_access_token(resource,sso) do
+    guardian_module = get_guardian_module(sso)
+    case guardian_module.encode_and_sign(resource, %{}) do
       {:ok, token, _claims} -> {:ok, token}
       {:error, type} -> Error.create(:auth, type)
     end
   end
 
   # create a refresh token for a given user. set the ttl of the token to 4 weeks
-  defp create_refresh_token(resource) do
-    case Guardian.encode_and_sign(resource, %{}, token_type: "refresh") do
+  defp create_refresh_token(resource,sso \\ false) do
+    guardian_module = get_guardian_module(sso)
+    case guardian_module.encode_and_sign(resource, %{}, token_type: "refresh") do
       {:ok, token, _claims} -> {:ok, token}
       {:error, type} -> Error.create(:auth, type)
     end
   end
+
+  defp get_guardian_module(true),do: SSOGuardian
+  defp get_guardian_module(_),do: Guardian
 
   @doc """
   Create new access_token and refresh_token exchanging the user refresh token
@@ -227,4 +223,19 @@ defmodule ArkeAuth.Core.Auth do
     do: Error.create(:auth, "invalid attribute format")
 
   #### PASSSWORD MANAGEMENT END #####
+
+  def format_member(member) do
+    %{id: member.id,
+      arke_id: member.arke_id,
+      arke_system_user: member.data.arke_system_user,
+      data: %{
+        email: Map.get(member.data, :email),
+        first_name: Map.get(member.data, :first_name),
+        last_name: Map.get(member.data, :last_name),
+      },
+      metadata: member.metadata,
+      inserted_at: member.inserted_at,
+      updated_at: member.inserted_at
+    }
+  end
 end
