@@ -15,7 +15,7 @@
 defmodule ArkeAuth.SSOGuardian do
   @moduledoc """
              Guardian callbacks valid in a SSO process
-             """ && false
+             """
   use Guardian, otp_app: :arke_auth
 
   @doc """

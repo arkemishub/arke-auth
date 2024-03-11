@@ -82,38 +82,13 @@ defmodule ArkeAuth.Core.Member do
   end
   def before_unit_delete(_arke, unit), do: {:ok, unit}
 
-  # Temporary code until all arke are managed on database
-  def get_permission(member, arke) do
-    list_sytem_arke = Enum.map(ArkeManager.get_all(:arke_system), fn {k, v} -> k  end)
-    if member != nil and arke.id in list_sytem_arke do
-      if member.arke_id == :super_admin do
-        {:ok, permission_dict(%{filer: nil, get: true, put: true, post: true, delete: true})}
-      else
-        handle_get_permission(member, arke)
-      end
-    else
-      handle_get_permission(member, arke)
-    end
-  end
-
   defp handle_get_permission(member, %{metadata: %{project: project}}=arke) do
     arke_link = ArkeManager.get(:arke_link, :arke_system)
     arke_member_public = QueryManager.get_by(project: project, arke_id: "ake", id: "member_public")
-    parent_id_list = if member == nil, do: ["member_public"], else: ["member_public", Atom.to_string(member.arke_id)]
+    parent_id_list = get_parent_list(member)
     permissions = QueryManager.query(project: project, arke: arke_link.id) |> QueryManager.where(parent_id__in: parent_id_list, child_id: Atom.to_string(arke.id), type: "permission") |> QueryManager.all
-    member_public_permission =
-      case Enum.find(permissions, fn p -> p.data.parent_id == "member_public" end) do
-        nil -> permission_dict()
-        u ->
-          permission_dict(u.metadata)
-      end
-
-    member_permission =
-      case Enum.find(permissions, fn p -> p.data.parent_id != "member_public" end) do
-        nil -> permission_dict()
-        u ->
-          permission_dict(u.metadata)
-      end
+    member_public_permission =get_permission_dict(permissions,true)
+    member_permission = get_permission_dict(permissions,false)
 
     data = Map.merge(member_public_permission, member_permission, fn _k, v1, v2 ->
       if v1, do: v1, else: v2
@@ -126,31 +101,26 @@ defmodule ArkeAuth.Core.Member do
   end
 
   defp permission_dict(data \\ %{}) do
-    filter = Map.get(data, "filter", nil)
-    get = Map.get(data, "get", false)
-    put = Map.get(data, "put", false)
-    delete = Map.get(data, "delete", false)
-    post = Map.get(data, "post", false)
-    child_only = Map.get(data, "child_only", false)
+    updated_data = for {key, val} <- data, into: %{}, do: {to_string(key), val}
 
-    filter = Map.get(data, :filter, filter)
-    get = Map.get(data, :get, get)
-    put = Map.get(data, :put, put)
-    delete = Map.get(data, :delete, delete)
-    post = Map.get(data, :post, post)
-    child_only = Map.get(data, :child_only, child_only)
+    filter = Map.get(updated_data, "filter", nil)
+    get = Map.get(updated_data, "get", false)
+    put = Map.get(updated_data, "put", false)
+    delete = Map.get(updated_data, "delete", false)
+    post = Map.get(updated_data, "post", false)
+    child_only = Map.get(updated_data, "child_only", false)
 
     %{filter: filter, get: get, put: put, delete: delete, post: post, child_only: child_only}
   end
+  defp get_permission_dict(permission_list, is_public \\ false) do
+    cond = if is_public, do: fn parent_id -> parent_id == "member_public" end, else: fn parent_id -> parent_id != "member_public" end
+    case Enum.find(permission_list, fn p -> cond.(p.parent_id) end) do
+      nil -> permission_dict()
+      u ->
+        permission_dict(u.metadata)
+  end
+  end
+  defp get_parent_list(nil), do: ["member_public"]
+  defp get_parent_list(member), do: ["member_public", to_string(member.arke_id)]
+
 end
-
-
-# arke remote: true do
-#   parameter(:nickname, :string, required: false)
-#   parameter(:first_name, :string, required: false)
-#   parameter(:last_name, :string, required: false)
-#   parameter(:fiscal_code, :string, required: false)
-#   parameter(:birth_date, :string, required: false)
-#   parameter(:address, :dict, required: false)
-#   parameter(:user_id, :string, required: true)
-# end

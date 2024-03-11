@@ -3,7 +3,7 @@ defmodule ArkeAuth.ResetPasswordToken do
 
   @moduledoc """
              Documentation for `ResetPasswordToken`.
-             """ && false
+             """
 
   use Arke.System
 

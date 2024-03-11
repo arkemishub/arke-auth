@@ -15,7 +15,7 @@
 defmodule ArkeAuth.Guardian do
   @moduledoc """
              Guardian callbacks
-             """ && false
+             """
   use Guardian, otp_app: :arke_auth
 
   @doc """

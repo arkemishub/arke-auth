@@ -19,7 +19,7 @@ defmodule ArkeAuth.Core.Otp do
 
   @moduledoc """
              Documentation for `Otp`.
-             """ && false
+             """
 
   use Arke.System
 
