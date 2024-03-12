@@ -23,13 +23,13 @@ defmodule ArkeAuth.Utils.Permission do
 
   def get_public_permission(arke_id,project) do
     get_arke_permission(arke_id,project)
-    |> get_permission_dict(true)
+    |> get_permission_dict(nil,true)
     |> parse_data()
   end
   def get_member_permission(member, %{metadata: %{project: project}}=arke), do:  get_member_permission(member,to_string(arke.id),project )
   def get_member_permission(member, arke_id,project) do
     parent_list = get_parent_list(member)
-    permissions = get_arke_permission(arke_id,project)
+    permissions = get_arke_permission(arke_id,project,member)
     member_public_permission =get_permission_dict(permissions,nil,true)
     member_permission = get_permission_dict(permissions,member,false)
     Map.merge(member_public_permission, member_permission, fn _k, v1, v2 ->
@@ -45,9 +45,9 @@ defmodule ArkeAuth.Utils.Permission do
     end
   end
 
-  defp get_arke_permission(arke_id,project,parent_list \\ ["member_public"]) do
+  defp get_arke_permission(arke_id,project,member\\nil) do
     arke_link = ArkeManager.get(:arke_link, :arke_system)
-    arke_member_public = QueryManager.get_by(project: project, arke_id: "arke", id: "member_public")
+    parent_list = get_parent_list(member)
     QueryManager.query(project: project, arke: arke_link.id) |> QueryManager.where(parent_id__in: parent_list, child_id: to_string(arke_id), type: "permission") |> QueryManager.all
   end
 
@@ -62,21 +62,10 @@ defmodule ArkeAuth.Utils.Permission do
   defp get_parent_list(nil), do: ["member_public"]
   defp get_parent_list(member), do: ["member_public", to_string(member.arke_id)]
 
-  defp get_permission_filter(conn, member, %{filter: nil} = permission), do: permission
-
-  defp get_permission_filter(conn, member, permission) do
-    filter = String.replace(permission.filter, "{{arke_member}}", Atom.to_string(member.id))
-
-    case QueryFilters.get_from_string(conn, filter) do
-      {:ok, data} -> Map.put(permission, :filter, data)
-      {:error, _msg} -> Map.put(permission, :filter, nil)
-    end
-  end
-
   defp permission_dict(data,member\\nil)
-  defp permission_dict(data,%{arke_id: super_admin}=_member), do:  %{filter: "", get: true, put: true, post: true, delete: true}
+  defp permission_dict(data,%{arke_id: :super_admin}=_member), do: %{filter: nil, get: true, put: true, post: true, delete: true}
 
-  defp permission_dict(data,_member) do
+  defp permission_dict(data,member) do
     updated_data = for {key, val} <- data, into: %{}, do: {to_string(key), val}
     filter = Map.get(updated_data, "filter", nil)
     get = Map.get(updated_data, "get", false)
