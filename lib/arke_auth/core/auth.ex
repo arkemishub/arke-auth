@@ -19,7 +19,6 @@ defmodule ArkeAuth.Core.Auth do
 
   import Comeonin.Bcrypt, only: [checkpw: 2, dummy_checkpw: 0]
 
-  alias Arke.Boundary.ArkeManager
   alias Arke.QueryManager
   alias ArkeAuth.Core.User
   alias ArkeAuth.{Guardian,SSOGuardian}
@@ -82,7 +81,7 @@ defmodule ArkeAuth.Core.Auth do
       {:ok, user} ->
         case get_project_member(project, user) do
           {:ok, member} ->
-          {:ok, resource, access_token, refresh_token} = create_tokens(format_member(member))
+          {:ok, _resource, access_token, refresh_token} = create_tokens(format_member(member))
           {:ok, member, access_token, refresh_token}
           _ ->
             Error.create(:auth, "unauthorized")
@@ -98,7 +97,7 @@ defmodule ArkeAuth.Core.Auth do
     with {:ok, user} <- get_by_username(username, project), do: verify_password(password, user)
   end
 
-  defp get_project_member(project, user) do
+  def get_project_member(project, user) do
     case QueryManager.get_by(project: project, group_id: "arke_auth_member", arke_system_user: user.id ) do
       nil -> Error.create(:auth, "member not exists")
       member ->
@@ -136,7 +135,7 @@ defmodule ArkeAuth.Core.Auth do
   ######## END CHECK PW ##########
 
   #### JWT MANAGEMENT START #####
-  def create_tokens(resource,sso \\ false) do
+  def create_tokens(resource,sso \\ "default") do
     with {:ok, access_token} <- create_access_token(resource,sso),
          {:ok, refresh_token} <- create_refresh_token(resource,sso) do
       {:ok, resource, access_token, refresh_token}
@@ -153,7 +152,7 @@ defmodule ArkeAuth.Core.Auth do
   end
 
   # create a refresh token for a given user. set the ttl of the token to 4 weeks
-  defp create_refresh_token(resource,sso \\ false) do
+  defp create_refresh_token(resource,sso) do
     guardian_module = get_guardian_module(sso)
     case guardian_module.encode_and_sign(resource, %{}, token_type: "refresh") do
       {:ok, token, _claims} -> {:ok, token}
@@ -161,7 +160,7 @@ defmodule ArkeAuth.Core.Auth do
     end
   end
 
-  defp get_guardian_module(true),do: SSOGuardian
+  defp get_guardian_module("sso"),do: SSOGuardian
   defp get_guardian_module(_),do: Guardian
 
   @doc """
@@ -183,7 +182,7 @@ defmodule ArkeAuth.Core.Auth do
       {:ok, _} ->
         with {:ok, _old_stuff, {new_token, _new_claims}} <-
                Guardian.exchange(token, "refresh", "access"),
-             {:ok, refresh_token} <- create_refresh_token(user) do
+             {:ok, refresh_token} <- create_refresh_token(user,"default") do
           {:ok, new_token, refresh_token}
         end
 
