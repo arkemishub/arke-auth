@@ -231,6 +231,7 @@ defmodule ArkeAuth.Core.Auth do
         email: Map.get(member.data, :email),
         first_name: Map.get(member.data, :first_name),
         last_name: Map.get(member.data, :last_name),
+        subscription_active: Map.get(member.data, :subscription_active),
       },
       metadata: member.metadata,
       inserted_at: member.inserted_at,

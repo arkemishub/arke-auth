@@ -64,8 +64,9 @@ defmodule ArkeAuth.Utils.Permission do
 
   defp permission_dict(data,member\\nil)
   defp permission_dict(data,%{arke_id: :super_admin}=_member), do: %{filter: nil, get: true, put: true, post: true, delete: true}
+  defp permission_dict(data,%{data: %{subscription_active: false}}),do: %{filter: nil, get: false, put: false, post: false, delete: false}
 
-  defp permission_dict(data,member) do
+  defp permission_dict(data,_member) do
     updated_data = for {key, val} <- data, into: %{}, do: {to_string(key), val}
     filter = Map.get(updated_data, "filter", nil)
     get = Map.get(updated_data, "get", false)
