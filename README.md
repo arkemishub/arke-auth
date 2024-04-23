@@ -1,6 +1,6 @@
 # ArkeAuth
 
-![Auth](https://user-images.githubusercontent.com/81776297/233304301-839ca5ea-a919-476b-a541-6f8da588801c.png)
+![Auth](https://github.com/arkemishub/arke-auth/assets/81776297/07a75110-f7f5-4987-8398-7fa370e8dc1a)
 
 ## Installation
 
