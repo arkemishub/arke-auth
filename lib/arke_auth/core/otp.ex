@@ -13,18 +13,17 @@
 # limitations under the License.
 
 defmodule ArkeAuth.Core.Otp do
-  alias ArkeAuth.Core.Otp
 
   alias Arke.QueryManager
   alias Arke.Boundary.ArkeManager
 
   @moduledoc """
              Documentation for `Otp`.
-             """ && false
+             """
 
   use Arke.System
 
-  arke id: :otp, remote: true do
+  arke id: :otp do
   end
 
   def generate(project, id, action, expiry_datetime \\ nil) do

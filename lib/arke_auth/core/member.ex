@@ -76,56 +76,51 @@ defmodule ArkeAuth.Core.Member do
   def before_unit_update(_arke, unit), do: {:ok, unit}
 
   def on_unit_delete(_arke, unit) do
-    IO.inspect({"ok", unit.data.arke_system_user})
     user = QueryManager.get_by(project: :arke_system, arke_id: :user, id: unit.data.arke_system_user)
     QueryManager.delete(:arke_system, user)
     {:ok, unit}
   end
   def before_unit_delete(_arke, unit), do: {:ok, unit}
 
-  # Temporary code until all arke are managed on database
-  def get_permission(member, arke) do
-    list_sytem_arke = Enum.map(ArkeManager.get_all(:arke_system), fn {k, v} -> k  end)
-    if arke.id in list_sytem_arke do
-      if member.arke_id == :super_admin do
-        {:ok, permission_dict(nil, true, true, true, true, false)}
-      else
-        {:error, nil}
-      end
+  defp handle_get_permission(member, %{metadata: %{project: project}}=arke) do
+    arke_link = ArkeManager.get(:arke_link, :arke_system)
+    arke_member_public = QueryManager.get_by(project: project, arke_id: "ake", id: "member_public")
+    parent_id_list = get_parent_list(member)
+    permissions = QueryManager.query(project: project, arke: arke_link.id) |> QueryManager.where(parent_id__in: parent_id_list, child_id: Atom.to_string(arke.id), type: "permission") |> QueryManager.all
+    member_public_permission =get_permission_dict(permissions,true)
+    member_permission = get_permission_dict(permissions,false)
+
+    data = Map.merge(member_public_permission, member_permission, fn _k, v1, v2 ->
+      if v1, do: v1, else: v2
+    end) |> permission_dict
+    if Map.to_list(data) == [] do
+      {:error, nil}
     else
-      handle_get_permission(member, arke)
+      {:ok, data}
     end
   end
 
-  defp handle_get_permission(%{metadata: %{project: project}}=member, arke) do
-    arke_link = ArkeManager.get(:arke_link, :arke_system)
-    with %Arke.Core.Unit{} = link <-
-      Arke.QueryManager.query(project: project, arke: arke_link)
-      |> Arke.QueryManager.filter(:parent_id, :eq, member.arke_id, false)
-      |> Arke.QueryManager.filter(:child_id, :eq, Atom.to_string(arke.id), false)
-      |> Arke.QueryManager.filter(:type, :eq, "permission", false)
-      |> Arke.QueryManager.one(),
-    do: {:ok, permission_dict(
-      Map.get(link.metadata, "filter", nil),
-      Map.get(link.metadata, "get", nil),
-      Map.get(link.metadata, "put", nil),
-      Map.get(link.metadata, "delete", nil),
-      Map.get(link.metadata, "post", nil),
-      Map.get(link.metadata, "child_only", false)
-      )},
-    else: (_ -> {:error, nil})
+  defp permission_dict(data \\ %{}) do
+    updated_data = for {key, val} <- data, into: %{}, do: {to_string(key), val}
+
+    filter = Map.get(updated_data, "filter", nil)
+    get = Map.get(updated_data, "get", false)
+    put = Map.get(updated_data, "put", false)
+    delete = Map.get(updated_data, "delete", false)
+    post = Map.get(updated_data, "post", false)
+    child_only = Map.get(updated_data, "child_only", false)
+
+    %{filter: filter, get: get, put: put, delete: delete, post: post, child_only: child_only}
   end
+  defp get_permission_dict(permission_list, is_public \\ false) do
+    cond = if is_public, do: fn parent_id -> parent_id == "member_public" end, else: fn parent_id -> parent_id != "member_public" end
+    case Enum.find(permission_list, fn p -> cond.(p.parent_id) end) do
+      nil -> permission_dict()
+      u ->
+        permission_dict(u.metadata)
+  end
+  end
+  defp get_parent_list(nil), do: ["member_public"]
+  defp get_parent_list(member), do: ["member_public", to_string(member.arke_id)]
 
-  defp permission_dict(filter, get, put, delete, post, child_only), do: %{filter: filter, get: get, put: put, delete: delete, post: post, child_only: child_only}
 end
-
-
-# arke do
-#   parameter(:nickname, :string, required: false)
-#   parameter(:first_name, :string, required: false)
-#   parameter(:last_name, :string, required: false)
-#   parameter(:fiscal_code, :string, required: false)
-#   parameter(:birth_date, :string, required: false)
-#   parameter(:address, :dict, required: false)
-#   parameter(:user_id, :string, required: true)
-# end

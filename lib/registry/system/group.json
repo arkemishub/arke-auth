@@ -1,0 +1,8 @@
+{"group":[
+  {
+    "id": "oauth_provider",
+    "label": "OAuth Provider",
+    "description": "Oauth Provider",
+    "arke_list": ["oauth_apple","oauth_google","oauth_facebook"]
+  }
+]}
