@@ -5,7 +5,8 @@
       "label": "Arke Auth Member",
       "description": "Arke Auth Member",
       "arke_list": [
-        "super_admin"
+        "super_admin",
+        "member_public"
       ]
     }
   ]
