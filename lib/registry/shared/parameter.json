@@ -15,6 +15,7 @@
       "persistence": "arke_parameter",
       "required": false,
       "strip": true,
+      "lowercase": true,
       "unique": false,
       "values": null
     },
@@ -33,6 +34,7 @@
       "persistence": "arke_parameter",
       "required": false,
       "strip": false,
+"lowercase": false,
       "unique": false,
       "values": null
     },
@@ -51,6 +53,7 @@
       "persistence": "arke_parameter",
       "required": false,
       "strip": false,
+"lowercase": false,
       "unique": false,
       "values": null
     },
