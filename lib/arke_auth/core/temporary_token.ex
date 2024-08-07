@@ -26,8 +26,11 @@ defmodule ArkeAuth.Core.TemporaryToken do
   arke id: :otp do
   end
 
-  def generate_token(project, id, action, expiry_datetime \\ nil) do
-    {:error, "not implemented"}
+  def generate_token(project, duration \\ nil, is_reusable \\ false, opts \\ []) do
+    temp_arke = ArkeManager.get(:temporary_token, project)
+    expiration_datetime = calculate_expiration_datetime(duration)
+    data = [expiration_datetime: expiration_datetime, is_reusable: is_reusable] ++ opts
+    QueryManager.create(project, temp_arke, data)
   end
 
   def generate_auth_token(project, member, duration \\ nil, is_reusable \\ false, opts \\ []) do
