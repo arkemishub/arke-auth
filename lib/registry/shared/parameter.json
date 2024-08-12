@@ -85,7 +85,7 @@
     },
     {
       "arke_or_group_id": "arke_auth_member",
-      "connection_type": "link",
+      "connection_type": "temporary_token_auth",
       "default_link": null,
       "type": "link",
       "depth": 0,
