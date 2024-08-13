@@ -40,7 +40,7 @@ defmodule ArkeAuth.Core.TemporaryToken do
     QueryManager.create(project, temp_arke, data)
   end
 
-  defp calculate_expiration_datetime(duration) when is_nil(duration), do: add_from_now(System.get_env("DEFAULT_EXPIRATION_TEMPORARY_TOKEN", "1800"))
+  defp calculate_expiration_datetime(duration) when is_nil(duration), do: add_from_now(Application.get_env(:arke_auth, :temporary_token_expiration, 1800) |> to_string())
   defp calculate_expiration_datetime(%{days: days}), do: add_from_now(days * 86400)
   defp calculate_expiration_datetime(%{minutes: minutes}), do: add_from_now(minutes * 60)
   defp calculate_expiration_datetime(%{days: days, minutes: minutes}), do: add_from_now(days * 86400 + minutes * 60)
