@@ -23,7 +23,7 @@ defmodule ArkeAuth.Core.TemporaryToken do
 
   use Arke.System
 
-  arke id: :otp do
+  arke id: :temporary_token do
   end
 
   def generate_token(project, duration \\ nil, is_reusable \\ false, opts \\ []) do
