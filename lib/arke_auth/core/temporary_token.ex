@@ -33,10 +33,11 @@ defmodule ArkeAuth.Core.TemporaryToken do
     QueryManager.create(project, temp_arke, data)
   end
 
-  def generate_auth_token(project, member, duration \\ nil, is_reusable \\ false, opts \\ []) do
+  def generate_auth_token(project, member, duration \\ nil, is_reusable \\ false, opts \\ []) when is_map(member), do: generate_auth_token(project, member.id, duration, is_reusable, opts)
+  def generate_auth_token(project, member_id, duration \\ nil, is_reusable \\ false, opts \\ []) do
     temp_arke = ArkeManager.get(:temporary_token, project)
     expiration_datetime = calculate_expiration_datetime(duration)
-    data = [link_member: member.id, expiration_datetime: expiration_datetime, is_reusable: is_reusable] ++ opts
+    data = [link_member: member_id, expiration_datetime: expiration_datetime, is_reusable: is_reusable] ++ opts
     QueryManager.create(project, temp_arke, data)
   end
 
