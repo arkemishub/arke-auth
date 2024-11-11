@@ -154,6 +154,24 @@
           }
         }
       ]
+    },
+    {
+      "id": "oauth_microsoft",
+      "label": "Microsoft OAuth",
+      "parameters": [
+        {
+          "id": "email",
+          "metadata": {
+            "required": true
+          }
+        },
+        {
+          "id": "oauth_id",
+          "metadata": {
+            "required": true
+          }
+        }
+      ]
     }
   ]
 }
