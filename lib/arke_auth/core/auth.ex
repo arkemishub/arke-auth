@@ -21,10 +21,10 @@ defmodule ArkeAuth.Core.Auth do
 
   alias Arke.QueryManager
   alias ArkeAuth.Core.User
-  alias ArkeAuth.{Guardian,SSOGuardian}
+  alias ArkeAuth.{Guardian, SSOGuardian}
   alias Arke.Utils.ErrorGenerator, as: Error
 
-  #todo: add method to validate sso
+  # todo: add method to validate sso
 
   ######### UPDATE USER #############
   @doc """
@@ -81,8 +81,9 @@ defmodule ArkeAuth.Core.Auth do
       {:ok, user} ->
         case get_project_member(project, user) do
           {:ok, member} ->
-          {:ok, _resource, access_token, refresh_token} = create_tokens(format_member(member))
-          {:ok, member, access_token, refresh_token}
+            {:ok, _resource, access_token, refresh_token} = create_tokens(format_member(member))
+            {:ok, member, access_token, refresh_token}
+
           _ ->
             Error.create(:auth, "unauthorized")
         end
@@ -98,12 +99,18 @@ defmodule ArkeAuth.Core.Auth do
   end
 
   def get_project_member(project, user) do
-    case QueryManager.get_by(project: project, group_id: "arke_auth_member", arke_system_user: user.id ) do
-      nil -> Error.create(:auth, "member not exists")
+    case QueryManager.get_by(
+           project: project,
+           group_id: "arke_auth_member",
+           arke_system_user: user.id
+         ) do
+      nil ->
+        Error.create(:auth, "member not exists")
+
       member ->
         case Map.get(member.data, :inactive, false) do
-          false -> {:ok , member}
-          nil -> {:ok , member}
+          false -> {:ok, member}
+          nil -> {:ok, member}
           true -> Error.create(:auth, "member_not_active")
         end
     end
@@ -135,16 +142,17 @@ defmodule ArkeAuth.Core.Auth do
   ######## END CHECK PW ##########
 
   #### JWT MANAGEMENT START #####
-  def create_tokens(resource,sso \\ "default") do
-    with {:ok, access_token} <- create_access_token(resource,sso),
-         {:ok, refresh_token} <- create_refresh_token(resource,sso) do
+  def create_tokens(resource, sso \\ "default") do
+    with {:ok, access_token} <- create_access_token(resource, sso),
+         {:ok, refresh_token} <- create_refresh_token(resource, sso) do
       {:ok, resource, access_token, refresh_token}
     end
   end
 
   # default ttl of the acess token is 1 week
-  defp create_access_token(resource,sso) do
+  defp create_access_token(resource, sso) do
     guardian_module = get_guardian_module(sso)
+
     case guardian_module.encode_and_sign(resource, %{}) do
       {:ok, token, _claims} -> {:ok, token}
       {:error, type} -> Error.create(:auth, type)
@@ -152,16 +160,17 @@ defmodule ArkeAuth.Core.Auth do
   end
 
   # create a refresh token for a given user. set the ttl of the token to 4 weeks
-  defp create_refresh_token(resource,sso) do
+  defp create_refresh_token(resource, sso) do
     guardian_module = get_guardian_module(sso)
+
     case guardian_module.encode_and_sign(resource, %{}, token_type: "refresh") do
       {:ok, token, _claims} -> {:ok, token}
       {:error, type} -> Error.create(:auth, type)
     end
   end
 
-  defp get_guardian_module("sso"),do: SSOGuardian
-  defp get_guardian_module(_),do: Guardian
+  defp get_guardian_module("sso"), do: SSOGuardian
+  defp get_guardian_module(_), do: Guardian
 
   @doc """
   Create new access_token and refresh_token exchanging the user refresh token
@@ -182,7 +191,7 @@ defmodule ArkeAuth.Core.Auth do
       {:ok, _} ->
         with {:ok, _old_stuff, {new_token, _new_claims}} <-
                Guardian.exchange(token, "refresh", "access"),
-             {:ok, refresh_token} <- create_refresh_token(user,"default") do
+             {:ok, refresh_token} <- create_refresh_token(user, "default") do
           {:ok, new_token, refresh_token}
         end
 
@@ -224,14 +233,15 @@ defmodule ArkeAuth.Core.Auth do
   #### PASSSWORD MANAGEMENT END #####
 
   def format_member(member) do
-    %{id: member.id,
+    %{
+      id: member.id,
       arke_id: member.arke_id,
       arke_system_user: member.data.arke_system_user,
       data: %{
         email: Map.get(member.data, :email),
         first_name: Map.get(member.data, :first_name),
         last_name: Map.get(member.data, :last_name),
-        subscription_active: Map.get(member.data, :subscription_active),
+        subscription_active: Map.get(member.data, :subscription_active)
       },
       metadata: member.metadata,
       inserted_at: member.inserted_at,

@@ -14,9 +14,40 @@
 
 defmodule ArkeAuth.Guardian do
   @moduledoc """
-             Guardian callbacks
-             """
+  Guardian callbacks
+  """
+  import Plug.Conn
+  import Config
   use Guardian, otp_app: :arke_auth
+  # TODO find better name
+  def get_member(conn, impersonate \\ false) do
+    enable_impersonate =
+      Application.get_env(:arke_auth, ArkeAuth.Guardian)
+      |> Keyword.get(:enable_impersonate, false)
+
+    cond do
+      enable_impersonate and impersonate ->
+        Map.put(
+          ArkeAuth.Guardian.Plug.current_resource(conn, key: :"impersonate-user"),
+          :impersonating,
+          true
+        )
+
+      true ->
+        ArkeAuth.Guardian.Plug.current_resource(conn)
+    end
+
+    # with true <- enable_impersonate,
+    #      true <- impersonate do
+    #     Map.put(
+    #       ArkeAuth.Guardian.Plug.current_resource(conn, key: :"impersonate-user"),
+    #       :impersonating,
+    #       true
+    #     )
+    # else
+    #   false -> ArkeAuth.Guardian.Plug.current_resource(conn)
+    # end
+  end
 
   @doc """
   The resource used to generate the tokens
@@ -26,6 +57,7 @@ defmodule ArkeAuth.Guardian do
       id: to_string(member.id),
       project: member.metadata.project
     }
+
     sub = Map.merge(jwt_data, member.data)
     {:ok, sub}
   end
@@ -40,17 +72,20 @@ defmodule ArkeAuth.Guardian do
   def resource_from_claims(claims) do
     id = claims["sub"]["id"]
     project = String.to_existing_atom(claims["sub"]["project"])
-    case Arke.QueryManager.get_by(project: project, group_id: "arke_auth_member", id: id) do
-      nil -> {:error, :unauthorized}
-      member ->
-      data = Map.get(member,:data,%{})
-      inactive = Map.get(data,:inactive,false)
-      if inactive do
-        {:error, :unauthorized}
-        else
-        {:ok, member}
-      end
 
+    case Arke.QueryManager.get_by(project: project, group_id: "arke_auth_member", id: id) do
+      nil ->
+        {:error, :unauthorized}
+
+      member ->
+        data = Map.get(member, :data, %{})
+        inactive = Map.get(data, :inactive, false)
+
+        if inactive do
+          {:error, :unauthorized}
+        else
+          {:ok, member}
+        end
     end
   end
 
