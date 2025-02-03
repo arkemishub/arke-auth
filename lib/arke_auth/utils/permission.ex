@@ -45,8 +45,7 @@ defmodule ArkeAuth.Utils.Permission do
     end)
     |> Map.merge(data, fn _k, existing_value, new_value ->
       cond do
-        new_value == nil -> nil
-        existing_value == nil -> nil
+        is_nil(new_value) or is_nil(existing_value) -> nil
         existing_value == false or new_value == false -> false
         existing_value == true and new_value == true -> true
         true -> false
