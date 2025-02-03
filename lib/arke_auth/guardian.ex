@@ -36,17 +36,6 @@ defmodule ArkeAuth.Guardian do
       true ->
         ArkeAuth.Guardian.Plug.current_resource(conn)
     end
-
-    # with true <- enable_impersonate,
-    #      true <- impersonate do
-    #     Map.put(
-    #       ArkeAuth.Guardian.Plug.current_resource(conn, key: :"impersonate-user"),
-    #       :impersonating,
-    #       true
-    #     )
-    # else
-    #   false -> ArkeAuth.Guardian.Plug.current_resource(conn)
-    # end
   end
 
   @doc """
@@ -78,18 +67,14 @@ defmodule ArkeAuth.Guardian do
         {:error, :unauthorized}
 
       member ->
-        data = Map.get(member, :data, %{})
-        inactive = Map.get(data, :inactive, false)
-
-        if inactive do
-          {:error, :unauthorized}
-        else
-          {:ok, member}
-        end
+        check_member(member)
     end
   end
 
   def resource_from_claims(_claims) do
     {:error, :reason_for_error}
   end
+
+  def check_member(%{data: %{inactive: true}}), do: {:error, :unauthorized}
+  def check_member(member), do: {:ok, member}
 end
