@@ -35,11 +35,17 @@ defmodule ArkeAuth.Guardian do
   end
 
   defp get_impersonate_resources(conn) do
-    Map.put(
-      ArkeAuth.Guardian.Plug.current_resource(conn, key: :impersonate),
-      :impersonate,
-      true
-    )
+    case ArkeAuth.Guardian.Plug.current_resource(conn, key: :impersonate) do
+      nil ->
+        ArkeAuth.Guardian.Plug.current_resource(conn)
+
+      member ->
+        Map.put(
+          member,
+          :impersonate,
+          true
+        )
+    end
   end
 
   @doc """
