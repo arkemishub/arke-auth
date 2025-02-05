@@ -30,7 +30,7 @@ defmodule ArkeAuth.Utils.Permission do
   def get_member_permission(member, %{metadata: %{project: project}} = arke),
     do: get_member_permission(member, to_string(arke.id), project)
 
-  def get_member_permission(%{impersonating: true} = member, arke_id, project) do
+  def get_member_permission(%{impersonate: true} = member, arke_id, project) do
     parent_list = get_parent_list(member)
     permissions = get_arke_permission(arke_id, project, member)
     member_public_permission = get_permission_dict(permissions, nil, true)
