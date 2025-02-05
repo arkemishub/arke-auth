@@ -20,22 +20,25 @@ defmodule ArkeAuth.Guardian do
   import Config
   use Guardian, otp_app: :arke_auth
   # TODO find better name
-  def get_member(conn, impersonate \\ false) do
+
+  def get_member(conn, :impersonate) do
     enable_impersonate =
       Application.get_env(:arke_auth, ArkeAuth.Guardian)
       |> Keyword.get(:enable_impersonate, false)
 
-    cond do
-      enable_impersonate and impersonate ->
-        Map.put(
-          ArkeAuth.Guardian.Plug.current_resource(conn, key: :"impersonate-user"),
-          :impersonating,
-          true
-        )
-
-      true ->
-        ArkeAuth.Guardian.Plug.current_resource(conn)
+    if enable_impersonate do
+      Map.put(
+        ArkeAuth.Guardian.Plug.current_resource(conn, key: :impersonate),
+        :impersonate,
+        true
+      )
+    else
+      get_member(conn)
     end
+  end
+
+  def get_member(conn) do
+    ArkeAuth.Guardian.Plug.current_resource(conn)
   end
 
   @doc """
