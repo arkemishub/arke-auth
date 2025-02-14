@@ -16,10 +16,7 @@ defmodule ArkeAuth.Guardian do
   @moduledoc """
   Guardian callbacks
   """
-  import Plug.Conn
-  import Config
   use Guardian, otp_app: :arke_auth
-  # TODO find better name
 
   def get_member(conn, opts \\ []) do
     impersonate = Keyword.get(opts, :impersonate, false)
