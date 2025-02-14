@@ -14,9 +14,39 @@
 
 defmodule ArkeAuth.Guardian do
   @moduledoc """
-             Guardian callbacks
-             """
+  Guardian callbacks
+  """
+  import Plug.Conn
+  import Config
   use Guardian, otp_app: :arke_auth
+  # TODO find better name
+
+  def get_member(conn, opts \\ []) do
+    impersonate = Keyword.get(opts, :impersonate, false)
+
+    enable_impersonate =
+      Application.get_env(:arke_auth, ArkeAuth.Guardian)
+      |> Keyword.get(:enable_impersonate, false)
+
+    cond do
+      impersonate and enable_impersonate -> get_impersonate_resources(conn)
+      true -> ArkeAuth.Guardian.Plug.current_resource(conn)
+    end
+  end
+
+  defp get_impersonate_resources(conn) do
+    case ArkeAuth.Guardian.Plug.current_resource(conn, key: :impersonate) do
+      nil ->
+        ArkeAuth.Guardian.Plug.current_resource(conn)
+
+      member ->
+        Map.put(
+          member,
+          :impersonate,
+          true
+        )
+    end
+  end
 
   @doc """
   The resource used to generate the tokens
@@ -26,6 +56,7 @@ defmodule ArkeAuth.Guardian do
       id: to_string(member.id),
       project: member.metadata.project
     }
+
     sub = Map.merge(jwt_data, member.data)
     {:ok, sub}
   end
@@ -40,21 +71,20 @@ defmodule ArkeAuth.Guardian do
   def resource_from_claims(claims) do
     id = claims["sub"]["id"]
     project = String.to_existing_atom(claims["sub"]["project"])
-    case Arke.QueryManager.get_by(project: project, group_id: "arke_auth_member", id: id) do
-      nil -> {:error, :unauthorized}
-      member ->
-      data = Map.get(member,:data,%{})
-      inactive = Map.get(data,:inactive,false)
-      if inactive do
-        {:error, :unauthorized}
-        else
-        {:ok, member}
-      end
 
+    case Arke.QueryManager.get_by(project: project, group_id: "arke_auth_member", id: id) do
+      nil ->
+        {:error, :unauthorized}
+
+      member ->
+        check_member(member)
     end
   end
 
   def resource_from_claims(_claims) do
     {:error, :reason_for_error}
   end
+
+  def check_member(%{data: %{inactive: true}}), do: {:error, :unauthorized}
+  def check_member(member), do: {:ok, member}
 end

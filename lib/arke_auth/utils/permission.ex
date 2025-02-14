@@ -18,23 +18,54 @@ defmodule ArkeAuth.Utils.Permission do
 
   alias Arke.Utils.ErrorGenerator, as: Error
 
+  def get_public_permission(%{metadata: %{project: project}} = arke),
+    do: get_public_permission(to_string(arke.id), project)
 
-  def get_public_permission(%{metadata: %{project: project}}=arke), do: get_public_permission(to_string(arke.id),project)
-
-  def get_public_permission(arke_id,project) do
-    get_arke_permission(arke_id,project)
-    |> get_permission_dict(nil,true)
+  def get_public_permission(arke_id, project) do
+    get_arke_permission(arke_id, project)
+    |> get_permission_dict(nil, true)
     |> parse_data()
   end
-  def get_member_permission(member, %{metadata: %{project: project}}=arke), do:  get_member_permission(member,to_string(arke.id),project )
-  def get_member_permission(member, arke_id,project) do
+
+  def get_member_permission(member, %{metadata: %{project: project}} = arke),
+    do: get_member_permission(member, to_string(arke.id), project)
+
+  def get_member_permission(%{impersonate: true} = member, arke_id, project) do
     parent_list = get_parent_list(member)
-    permissions = get_arke_permission(arke_id,project,member)
-    member_public_permission =get_permission_dict(permissions,nil,true)
-    member_permission = get_permission_dict(permissions,member,false)
+    permissions = get_arke_permission(arke_id, project, member)
+    member_public_permission = get_permission_dict(permissions, nil, true)
+    member_permission = get_permission_dict(permissions, member, false)
+
+    data =
+      Application.get_env(:arke_auth, ArkeAuth.Guardian)
+      |> Keyword.get(:allowed_methods, nil)
+
     Map.merge(member_public_permission, member_permission, fn _k, v1, v2 ->
       if v1, do: v1, else: v2
-    end) |> permission_dict(member) |> parse_data
+    end)
+    |> Map.merge(data, fn _k, existing_value, new_value ->
+      cond do
+        is_nil(new_value) or is_nil(existing_value) -> nil
+        existing_value == false or new_value == false -> false
+        existing_value == true and new_value == true -> true
+        true -> false
+      end
+    end)
+    |> permission_dict(member)
+    |> parse_data
+  end
+
+  def get_member_permission(member, arke_id, project) do
+    parent_list = get_parent_list(member)
+    permissions = get_arke_permission(arke_id, project, member)
+    member_public_permission = get_permission_dict(permissions, nil, true)
+    member_permission = get_permission_dict(permissions, member, false)
+
+    Map.merge(member_public_permission, member_permission, fn _k, v1, v2 ->
+      if v1, do: v1, else: v2
+    end)
+    |> permission_dict(member)
+    |> parse_data
   end
 
   defp parse_data(data) do
@@ -45,28 +76,46 @@ defmodule ArkeAuth.Utils.Permission do
     end
   end
 
-  defp get_arke_permission(arke_id,project,member\\nil) do
+  defp get_arke_permission(arke_id, project, member \\ nil) do
     arke_link = ArkeManager.get(:arke_link, :arke_system)
     parent_list = get_parent_list(member)
-    QueryManager.query(project: project, arke: arke_link.id) |> QueryManager.where(parent_id__in: parent_list, child_id: to_string(arke_id), type: "permission") |> QueryManager.all
+
+    QueryManager.query(project: project, arke: arke_link.id)
+    |> QueryManager.where(
+      parent_id__in: parent_list,
+      child_id: to_string(arke_id),
+      type: "permission"
+    )
+    |> QueryManager.all()
   end
 
-  defp get_permission_dict(permission_list,member\\ nil, is_public \\ false) do
-    cond = if is_public, do: fn parent_id -> parent_id == "member_public" end, else: fn parent_id -> parent_id != "member_public" end
+  defp get_permission_dict(permission_list, member \\ nil, is_public \\ false) do
+    cond =
+      if is_public,
+        do: fn parent_id -> parent_id == "member_public" end,
+        else: fn parent_id -> parent_id != "member_public" end
+
     case Enum.find(permission_list, fn p -> cond.(p.data.parent_id) end) do
-      nil -> permission_dict(%{},member)
+      nil ->
+        permission_dict(%{}, member)
+
       u ->
-        permission_dict(u.metadata,member)
+        permission_dict(u.metadata, member)
     end
   end
+
   defp get_parent_list(nil), do: ["member_public"]
   defp get_parent_list(member), do: ["member_public", to_string(member.arke_id)]
 
-  defp permission_dict(data,member\\nil)
-  defp permission_dict(data,%{arke_id: :super_admin}=_member), do: %{filter: nil, get: true, put: true, post: true, delete: true}
-  defp permission_dict(data,%{data: %{subscription_active: false}}),do: %{filter: nil, get: false, put: false, post: false, delete: false}
+  defp permission_dict(data, member \\ nil)
 
-  defp permission_dict(data,_member) do
+  defp permission_dict(data, %{arke_id: :super_admin} = _member),
+    do: %{filter: nil, get: true, put: true, post: true, delete: true}
+
+  defp permission_dict(data, %{data: %{subscription_active: false}}),
+    do: %{filter: nil, get: false, put: false, post: false, delete: false}
+
+  defp permission_dict(data, _member) do
     updated_data = for {key, val} <- data, into: %{}, do: {to_string(key), val}
     filter = Map.get(updated_data, "filter", nil)
     get = Map.get(updated_data, "get", false)
@@ -77,8 +126,4 @@ defmodule ArkeAuth.Utils.Permission do
 
     %{filter: filter, get: get, put: put, delete: delete, post: post, child_only: child_only}
   end
-
 end
-
-
-
