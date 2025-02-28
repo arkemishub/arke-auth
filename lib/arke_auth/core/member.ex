@@ -113,7 +113,14 @@ defmodule ArkeAuth.Core.Member do
     user =
       QueryManager.get_by(project: :arke_system, arke_id: :user, id: unit.data.arke_system_user)
 
+    oauth_units =
+      QueryManager.query(project: :arke_system)
+      |> QueryManager.link(user, depth: 1, direction: :child, type: "oauth")
+      |> QueryManager.all()
+
     QueryManager.delete(:arke_system, user)
+    QueryManager.delete_bulk(:arke_system, oauth_units)
+
     {:ok, unit}
   end
 
