@@ -74,8 +74,21 @@ defmodule ArkeAuth.Core.Member do
       end)
 
     case Arke.QueryManager.create_bulk(:arke_system, arke_user, user_data) do
-      {:ok, _inserted_count, _units, errors} ->
-        {:ok, valid, errors}
+      {:ok, _inserted_count, users, errors} ->
+        {:ok,
+         Enum.map(valid, fn unit ->
+           user =
+             Enum.find(users, fn user ->
+               user.data.username == Map.get(unit.data, :username) or
+                 user.data.email == Map.get(unit.data, :email)
+             end)
+
+           # todo: better error handling
+           case user do
+             nil -> unit
+             user -> Arke.Core.Unit.update(unit, arke_system_user: user.id)
+           end
+         end), errors}
 
       {:error, error} ->
         {:error, error}
