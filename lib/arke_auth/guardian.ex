@@ -67,6 +67,7 @@ defmodule ArkeAuth.Guardian do
   """
   def resource_from_claims(claims) do
     id = claims["sub"]["id"]
+    IO.inspect(claims)
     project = String.to_existing_atom(claims["sub"]["project"])
 
     case Arke.QueryManager.get_by(project: project, group_id: "arke_auth_member", id: id) do

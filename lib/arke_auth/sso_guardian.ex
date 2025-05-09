@@ -14,17 +14,20 @@
 
 defmodule ArkeAuth.SSOGuardian do
   @moduledoc """
-             Guardian callbacks valid in a SSO process
-             """
+  Guardian callbacks valid in a SSO process
+  """
   use Guardian, otp_app: :arke_auth
 
   @doc """
   The resource used to generate the tokens
   """
   def subject_for_token(user, _claims) do
+    IO.inspect(user)
+
     jwt_data = %{
-      id: to_string(user.id),
+      id: to_string(user.id)
     }
+
     sub = Map.merge(jwt_data, Map.drop(user.data, [:password_hash]))
     {:ok, sub}
   end
@@ -38,10 +41,13 @@ defmodule ArkeAuth.SSOGuardian do
   """
   def resource_from_claims(claims) do
     id = claims["sub"]["id"]
+
     case Arke.QueryManager.get_by(project: :arke_system, arke_id: :user, id: id) do
-      nil -> {:error, :unauthorized}
+      nil ->
+        {:error, :unauthorized}
+
       user ->
-        data = Map.get(user,:data,%{})
+        data = Map.get(user, :data, %{})
         {:ok, user}
     end
   end
