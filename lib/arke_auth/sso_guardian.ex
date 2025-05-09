@@ -22,8 +22,6 @@ defmodule ArkeAuth.SSOGuardian do
   The resource used to generate the tokens
   """
   def subject_for_token(user, _claims) do
-    IO.inspect(user)
-
     jwt_data = %{
       id: to_string(user.id)
     }
